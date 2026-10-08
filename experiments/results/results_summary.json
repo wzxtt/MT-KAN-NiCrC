@@ -1,0 +1,341 @@
+{
+  "meta": {
+    "seed": 2026,
+    "n_params_mt_kan": 14629,
+    "n_params_mlp": 14149,
+    "task_weights": [
+      1.0,
+      2.0,
+      1.0,
+      2.0,
+      1.5
+    ],
+    "task_weight_selection": "mean validation R^2 over the five tasks"
+  },
+  "models": {
+    "MT-KAN": {
+      "Sa_nm": {
+        "R2": 0.9791024218960773,
+        "RMSE": 0.08324734176170687,
+        "MAE": 0.05233671225598054
+      },
+      "H_GPa": {
+        "R2": 0.5096860697248706,
+        "RMSE": 3.4825997013018646,
+        "MAE": 2.23641015543576
+      },
+      "E_GPa": {
+        "R2": 0.8689947279289638,
+        "RMSE": 2.807918257148075,
+        "MAE": 2.2521362663359676
+      },
+      "stress_GPa": {
+        "R2": 0.41921522352466056,
+        "RMSE": 0.885856283950249,
+        "MAE": 0.6511378632494971
+      },
+      "H_Estar": {
+        "R2": 0.44605984082075334,
+        "RMSE": 0.013070047860871974,
+        "MAE": 0.009361597541052886
+      }
+    },
+    "MLP": {
+      "Sa_nm": {
+        "R2": 0.9864332209315589,
+        "RMSE": 0.06707501406313579,
+        "MAE": 0.044325405586047424
+      },
+      "H_GPa": {
+        "R2": 0.4000115492354246,
+        "RMSE": 3.8524577785230036,
+        "MAE": 3.0341995741481744
+      },
+      "E_GPa": {
+        "R2": 0.9040306953382706,
+        "RMSE": 2.4032903799515735,
+        "MAE": 1.9881752751531534
+      },
+      "stress_GPa": {
+        "R2": 0.2909718212060285,
+        "RMSE": 0.9787852273743111,
+        "MAE": 0.7338678102803741
+      },
+      "H_Estar": {
+        "R2": 0.4886272204017176,
+        "RMSE": 0.012557828728111887,
+        "MAE": 0.009104230583606468
+      }
+    },
+    "Random Forest": {
+      "Sa_nm": {
+        "R2": 0.9907000110628278,
+        "RMSE": 0.05553459538537086,
+        "MAE": 0.02813529618176688,
+        "model": "RandomForestRegressor(max_depth=12, min_samples_leaf=3, n_estimators=300,\n                      n_jobs=-1, random_state=42)"
+      },
+      "H_GPa": {
+        "R2": 0.48742861608274857,
+        "RMSE": 3.56076752665566,
+        "MAE": 2.3811269677970435,
+        "model": "RandomForestRegressor(max_depth=12, min_samples_leaf=3, n_estimators=300,\n                      n_jobs=-1, random_state=42)"
+      },
+      "E_GPa": {
+        "R2": 0.9117967954942131,
+        "RMSE": 2.3039988385739005,
+        "MAE": 1.9142691684135855,
+        "model": "RandomForestRegressor(max_depth=12, min_samples_leaf=3, n_estimators=300,\n                      n_jobs=-1, random_state=42)"
+      },
+      "stress_GPa": {
+        "R2": 0.17663932462424992,
+        "RMSE": 1.0547528767931573,
+        "MAE": 0.7440621916281951,
+        "model": "RandomForestRegressor(max_depth=12, min_samples_leaf=3, n_estimators=300,\n                      n_jobs=-1, random_state=42)"
+      },
+      "H_Estar": {
+        "R2": 0.5166469634228193,
+        "RMSE": 0.012208940517392014,
+        "MAE": 0.009463821389051988,
+        "model": "RandomForestRegressor(max_depth=12, min_samples_leaf=3, n_estimators=300,\n                      n_jobs=-1, random_state=42)"
+      }
+    },
+    "XGBoost": {
+      "Sa_nm": {
+        "R2": 0.9867878472840027,
+        "RMSE": 0.06619256164048118,
+        "MAE": 0.037398423912321954,
+        "model": "XGBRegressor(base_score=None, booster=None, callbacks=None,\n             colsample_bylevel=None, colsample_bynode=None,\n             colsample_bytree=None, device=None, early_stopping_rounds=None,\n             enable_categorical=True, eval_metric=None, feature_types=None,\n             feature_weights=None, gamma=None, grow_policy=None,\n             importance_type=None, interaction_constraints=None,\n             learning_rate=0.1, max_bin=None, max_cat_threshold=None,\n             max_cat_to_onehot=None, max_delta_step=None, max_depth=3,\n             max_leaves=None, min_child_weight=None, missing=nan,\n             monotone_constraints=None, multi_strategy=None, n_estimators=100,\n             n_jobs=-1, num_parallel_tree=None, ...)"
+      },
+      "H_GPa": {
+        "R2": 0.47104687128374145,
+        "RMSE": 3.617220950160966,
+        "MAE": 2.7137403988450193,
+        "model": "XGBRegressor(base_score=None, booster=None, callbacks=None,\n             colsample_bylevel=None, colsample_bynode=None,\n             colsample_bytree=None, device=None, early_stopping_rounds=None,\n             enable_categorical=True, eval_metric=None, feature_types=None,\n             feature_weights=None, gamma=None, grow_policy=None,\n             importance_type=None, interaction_constraints=None,\n             learning_rate=0.1, max_bin=None, max_cat_threshold=None,\n             max_cat_to_onehot=None, max_delta_step=None, max_depth=3,\n             max_leaves=None, min_child_weight=None, missing=nan,\n             monotone_constraints=None, multi_strategy=None, n_estimators=100,\n             n_jobs=-1, num_parallel_tree=None, ...)"
+      },
+      "E_GPa": {
+        "R2": 0.9087130398171558,
+        "RMSE": 2.3439289696624805,
+        "MAE": 1.915092072016973,
+        "model": "XGBRegressor(base_score=None, booster=None, callbacks=None,\n             colsample_bylevel=None, colsample_bynode=None,\n             colsample_bytree=None, device=None, early_stopping_rounds=None,\n             enable_categorical=True, eval_metric=None, feature_types=None,\n             feature_weights=None, gamma=None, grow_policy=None,\n             importance_type=None, interaction_constraints=None,\n             learning_rate=0.1, max_bin=None, max_cat_threshold=None,\n             max_cat_to_onehot=None, max_delta_step=None, max_depth=3,\n             max_leaves=None, min_child_weight=None, missing=nan,\n             monotone_constraints=None, multi_strategy=None, n_estimators=100,\n             n_jobs=-1, num_parallel_tree=None, ...)"
+      },
+      "stress_GPa": {
+        "R2": 0.2344815622959493,
+        "RMSE": 1.0170293490662305,
+        "MAE": 0.7011963230638287,
+        "model": "XGBRegressor(base_score=None, booster=None, callbacks=None,\n             colsample_bylevel=None, colsample_bynode=None,\n             colsample_bytree=None, device=None, early_stopping_rounds=None,\n             enable_categorical=True, eval_metric=None, feature_types=None,\n             feature_weights=None, gamma=None, grow_policy=None,\n             importance_type=None, interaction_constraints=None,\n             learning_rate=0.1, max_bin=None, max_cat_threshold=None,\n             max_cat_to_onehot=None, max_delta_step=None, max_depth=3,\n             max_leaves=None, min_child_weight=None, missing=nan,\n             monotone_constraints=None, multi_strategy=None, n_estimators=100,\n             n_jobs=-1, num_parallel_tree=None, ...)"
+      },
+      "H_Estar": {
+        "R2": 0.4185619240298032,
+        "RMSE": 0.013390521354901432,
+        "MAE": 0.009935355896950179,
+        "model": "XGBRegressor(base_score=None, booster=None, callbacks=None,\n             colsample_bylevel=None, colsample_bynode=None,\n             colsample_bytree=None, device=None, early_stopping_rounds=None,\n             enable_categorical=True, eval_metric=None, feature_types=None,\n             feature_weights=None, gamma=None, grow_policy=None,\n             importance_type=None, interaction_constraints=None,\n             learning_rate=0.1, max_bin=None, max_cat_threshold=None,\n             max_cat_to_onehot=None, max_delta_step=None, max_depth=3,\n             max_leaves=None, min_child_weight=None, missing=nan,\n             monotone_constraints=None, multi_strategy=None, n_estimators=100,\n             n_jobs=-1, num_parallel_tree=None, ...)"
+      }
+    },
+    "SVR": {
+      "Sa_nm": {
+        "R2": 0.978936805782414,
+        "RMSE": 0.08357656394952628,
+        "MAE": 0.061977431214552584,
+        "model": "SVR()"
+      },
+      "H_GPa": {
+        "R2": 0.2327044520850361,
+        "RMSE": 4.356600946745012,
+        "MAE": 3.4800637189286396,
+        "model": "SVR()"
+      },
+      "E_GPa": {
+        "R2": 0.9082070427243047,
+        "RMSE": 2.3504161079875616,
+        "MAE": 1.8867476733692805,
+        "model": "SVR()"
+      },
+      "stress_GPa": {
+        "R2": -0.11074512146805504,
+        "RMSE": 1.225075530507039,
+        "MAE": 0.7289640083879279,
+        "model": "SVR()"
+      },
+      "H_Estar": {
+        "R2": -0.0060303925558116145,
+        "RMSE": 0.01761372870041013,
+        "MAE": 0.01403092461087202,
+        "model": "SVR()"
+      }
+    },
+    "kNN": {
+      "Sa_nm": {
+        "R2": 0.9864301351563715,
+        "RMSE": 0.06708264176330844,
+        "MAE": 0.025782107795674247,
+        "model": "KNeighborsRegressor(n_neighbors=7, weights='distance')"
+      },
+      "H_GPa": {
+        "R2": 0.32028058564182027,
+        "RMSE": 4.100447725275899,
+        "MAE": 2.7207519676925225,
+        "model": "KNeighborsRegressor(n_neighbors=7, weights='distance')"
+      },
+      "E_GPa": {
+        "R2": 0.9042315179084368,
+        "RMSE": 2.4007745354107732,
+        "MAE": 1.998531563606576,
+        "model": "KNeighborsRegressor(n_neighbors=7, weights='distance')"
+      },
+      "stress_GPa": {
+        "R2": 0.02289039367102763,
+        "RMSE": 1.1490192368589731,
+        "MAE": 0.8565943288268529,
+        "model": "KNeighborsRegressor(n_neighbors=7, weights='distance')"
+      },
+      "H_Estar": {
+        "R2": 0.3758517212847253,
+        "RMSE": 0.01387361507401149,
+        "MAE": 0.010929615431658574,
+        "model": "KNeighborsRegressor(n_neighbors=7, weights='distance')"
+      }
+    },
+    "ElasticNet": {
+      "Sa_nm": {
+        "R2": 0.6829132871506327,
+        "RMSE": 0.3242734692941838,
+        "MAE": 0.2615449281403572,
+        "model": "ElasticNet(alpha=0.1, max_iter=10000, random_state=42)"
+      },
+      "H_GPa": {
+        "R2": 0.03139137842921225,
+        "RMSE": 4.894863749635059,
+        "MAE": 4.336576448441445,
+        "model": "ElasticNet(alpha=0.1, max_iter=10000, random_state=42)"
+      },
+      "E_GPa": {
+        "R2": 0.815629363902467,
+        "RMSE": 3.3310868113782943,
+        "MAE": 2.7024342214650616,
+        "model": "ElasticNet(alpha=0.1, max_iter=10000, random_state=42)"
+      },
+      "stress_GPa": {
+        "R2": 0.12700902721567853,
+        "RMSE": 1.086076794814735,
+        "MAE": 0.9031478735558089,
+        "model": "ElasticNet(alpha=0.1, max_iter=10000, random_state=42)"
+      },
+      "H_Estar": {
+        "R2": -0.04543456330292117,
+        "RMSE": 0.017955362575213334,
+        "MAE": 0.01368676469589904,
+        "model": "ElasticNet(alpha=0.1, max_iter=10000, random_state=42)"
+      }
+    }
+  },
+  "ablation": {
+    "physics + weights": {
+      "Sa_nm": {
+        "R2": 0.9791024218960773,
+        "RMSE": 0.08324734176170687,
+        "MAE": 0.05233671225598054
+      },
+      "H_GPa": {
+        "R2": 0.5096860697248706,
+        "RMSE": 3.4825997013018646,
+        "MAE": 2.23641015543576
+      },
+      "E_GPa": {
+        "R2": 0.8689947279289638,
+        "RMSE": 2.807918257148075,
+        "MAE": 2.2521362663359676
+      },
+      "stress_GPa": {
+        "R2": 0.41921522352466056,
+        "RMSE": 0.885856283950249,
+        "MAE": 0.6511378632494971
+      },
+      "H_Estar": {
+        "R2": 0.44605984082075334,
+        "RMSE": 0.013070047860871974,
+        "MAE": 0.009361597541052886
+      }
+    },
+    "physics only": {
+      "Sa_nm": {
+        "R2": 0.9786709476771053,
+        "RMSE": 0.08410235867189951,
+        "MAE": 0.05084041602907033
+      },
+      "H_GPa": {
+        "R2": 0.5192269051567513,
+        "RMSE": 3.44854994452066,
+        "MAE": 2.4801467036337645
+      },
+      "E_GPa": {
+        "R2": 0.9202072456425269,
+        "RMSE": 2.191400731595135,
+        "MAE": 1.8191719156673947
+      },
+      "stress_GPa": {
+        "R2": 0.39926027587194357,
+        "RMSE": 0.9009461496282318,
+        "MAE": 0.654855446925382
+      },
+      "H_Estar": {
+        "R2": 0.5525587458251873,
+        "RMSE": 0.011746642837131324,
+        "MAE": 0.00883612776606131
+      }
+    },
+    "weights only": {
+      "Sa_nm": {
+        "R2": 0.9719810241685085,
+        "RMSE": 0.0963936719684466,
+        "MAE": 0.06251288982124653
+      },
+      "H_GPa": {
+        "R2": 0.5210978012155412,
+        "RMSE": 3.44183350429755,
+        "MAE": 2.4143282746715093
+      },
+      "E_GPa": {
+        "R2": 0.8959774758582015,
+        "RMSE": 2.5020948435547328,
+        "MAE": 2.0655989539577067
+      },
+      "stress_GPa": {
+        "R2": 0.4159204622416611,
+        "RMSE": 0.8883654383032599,
+        "MAE": 0.6429762236005707
+      },
+      "H_Estar": {
+        "R2": 0.570833350728376,
+        "RMSE": 0.011504261232480608,
+        "MAE": 0.008776841706200418
+      }
+    },
+    "neither": {
+      "Sa_nm": {
+        "R2": 0.9801191251132283,
+        "RMSE": 0.0811970296516975,
+        "MAE": 0.0490827938774309
+      },
+      "H_GPa": {
+        "R2": 0.5268475554359373,
+        "RMSE": 3.421109590959385,
+        "MAE": 2.4255991006054147
+      },
+      "E_GPa": {
+        "R2": 0.9192370448067718,
+        "RMSE": 2.2046831092946175,
+        "MAE": 1.8062600314806418
+      },
+      "stress_GPa": {
+        "R2": 0.3970845138590354,
+        "RMSE": 0.9025762005726359,
+        "MAE": 0.6399201082055244
+      },
+      "H_Estar": {
+        "R2": 0.5573943671489012,
+        "RMSE": 0.011682995799026756,
+        "MAE": 0.008866241948125787
+      }
+    }
+  }
+}
