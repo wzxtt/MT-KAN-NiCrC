@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'experiments'))
 
 from data_loader import ThinFilmDataset
 from kan_model import MultiTaskKAN, MLPBaseline
-from train_eval import train_model, evaluate, WeightedMSELoss
+from train_eval import train_model, evaluate, WeightedMSELoss, sample_phys_contexts
 from baselines import (
     train_xgboost_baseline, train_random_forest_baseline,
     train_svr_baseline, train_knn_baseline, train_elasticnet_baseline
@@ -54,6 +54,7 @@ print(f'Data: {DATA_PATH}')
 # ============================================================
 print('\n[1] Loading data...')
 ds = ThinFilmDataset(DATA_PATH)
+phys_ctx = sample_phys_contexts(ds)
 all_X = ds.features
 all_Y = ds.targets * ds.tgt_std[None, :] + ds.tgt_mean[None, :]  # denorm (NaN filled with mean)
 all_Y_norm = ds.targets
@@ -101,7 +102,9 @@ print(f'  MT-KAN parameters: {n_params_kan:,}')
 kan_history, kan_metrics, kan_preds, kan_targets, kan_best = train_model(
     kan_model, train_loader, val_loader, test_loader, DEVICE,
     ds.tgt_mean, ds.tgt_std, n_epochs=N_EPOCHS, model_name='MT-KAN',
-    patience=PATIENCE, use_physics=True, task_weights=TASK_WEIGHTS)
+    patience=PATIENCE, use_physics=True, task_weights=TASK_WEIGHTS,
+    feat_mean=ds.feat_mean, feat_std=ds.feat_std,
+    phys_contexts=phys_ctx)
 
 test_loss, kan_metrics_full, kan_preds_full, kan_targets_full = evaluate(
     kan_model, test_loader, _eval_criterion, DEVICE, ds.tgt_mean, ds.tgt_std)

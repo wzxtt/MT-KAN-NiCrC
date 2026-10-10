@@ -24,7 +24,9 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'experiments'))
 
 from data_loader import ThinFilmDataset
 from kan_model import MultiTaskKAN
-from train_eval import train_model, evaluate, WeightedMSELoss
+from train_eval import (train_model, evaluate, WeightedMSELoss,
+                        sample_phys_contexts, build_consistency_grids,
+                        consistency_metrics)
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 DATA_PATH = os.path.join(BASE_DIR, 'unified_dataset', 'training_dataset.csv')
@@ -51,6 +53,8 @@ def main():
     assert seeds_in_runs == SEEDS, f'seed mismatch: {seeds_in_runs}'
 
     ds = ThinFilmDataset(DATA_PATH)
+    phys_ctx = sample_phys_contexts(ds)
+    grids = build_consistency_grids(ds)
     all_X = ds.features
     all_Y_norm = ds.targets
     all_Y = all_Y_norm * ds.tgt_std[None, :] + ds.tgt_mean[None, :]
@@ -73,13 +77,19 @@ def main():
             train_model(m, train_loader, val_loader, test_loader, DEVICE,
                         ds.tgt_mean, ds.tgt_std, n_epochs=N_EPOCHS,
                         model_name=f'{cell}[{seed}]', patience=PATIENCE,
-                        use_physics=use_phys, task_weights=cell_tw_val)
+                        use_physics=use_phys, task_weights=cell_tw_val,
+                        feat_mean=ds.feat_mean, feat_std=ds.feat_std,
+                        phys_contexts=phys_ctx)
             _, metrics, _, _ = evaluate(m, test_loader, WeightedMSELoss(), DEVICE,
                                         ds.tgt_mean, ds.tgt_std)
             rec = {t: {k: float(metrics[t][k]) for k in METRICS} for t in TASK_NAMES}
+            rec['consistency'] = consistency_metrics(m, grids)
             runs[i][cell] = rec
             avg = np.mean([rec[t]['R2'] for t in TASK_NAMES])
-            print(f'seed {seed} {cell:16s} avg R2 = {avg:.3f}  ({time.time()-t0:.0f}s)')
+            cm = rec['consistency']
+            print(f'seed {seed} {cell:16s} avg R2 = {avg:.3f}  '
+                  f'Sa_viol={cm["sa_viol"]*100:.1f}% H_viol={cm["h_viol"]*100:.1f}%  '
+                  f'({time.time()-t0:.0f}s)')
             del m
             if DEVICE.type == 'cuda':
                 torch.cuda.empty_cache()

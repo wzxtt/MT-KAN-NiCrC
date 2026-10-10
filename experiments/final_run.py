@@ -33,7 +33,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'experiments'))
 
 from data_loader import ThinFilmDataset
 from kan_model import MultiTaskKAN, MLPBaseline
-from train_eval import train_model, evaluate, WeightedMSELoss
+from train_eval import train_model, evaluate, WeightedMSELoss, sample_phys_contexts
 from baselines import (
     train_xgboost_baseline, train_random_forest_baseline,
     train_svr_baseline, train_knn_baseline, train_elasticnet_baseline
@@ -80,6 +80,7 @@ def main():
     print('=' * 70)
 
     ds = ThinFilmDataset(DATA_PATH)
+    phys_ctx = sample_phys_contexts(ds)
     all_X = ds.features
     all_Y = ds.targets * ds.tgt_std[None, :] + ds.tgt_mean[None, :]
     all_Y_norm = ds.targets
@@ -128,7 +129,9 @@ def main():
     kan_hist, _, _, _, kan_best = train_model(
         kan_model, train_loader, val_loader, test_loader, DEVICE,
         ds.tgt_mean, ds.tgt_std, n_epochs=N_EPOCHS, model_name='MT-KAN',
-        patience=PATIENCE, use_physics=True, task_weights=tw)
+        patience=PATIENCE, use_physics=True, task_weights=tw,
+        feat_mean=ds.feat_mean, feat_std=ds.feat_std,
+        phys_contexts=phys_ctx)
     _, kan_metrics, kan_preds, _ = evaluate(
         kan_model, test_loader, eval_criterion, DEVICE, ds.tgt_mean, ds.tgt_std)
     torch.save(kan_best, os.path.join(OUT_DIR, 'mt_kan_best.pth'))
@@ -177,7 +180,9 @@ def main():
             m, train_loader, val_loader, test_loader, DEVICE,
             ds.tgt_mean, ds.tgt_std, n_epochs=N_EPOCHS,
             model_name=f'MT-KAN[{cell}]', patience=PATIENCE,
-            use_physics=use_phys, task_weights=cell_tw)
+            use_physics=use_phys, task_weights=cell_tw,
+            feat_mean=ds.feat_mean, feat_std=ds.feat_std,
+            phys_contexts=phys_ctx)
         ablation_metrics[cell] = tm
         ablation_hist[cell] = h
     ablation_metrics['MLP'] = mlp_metrics
