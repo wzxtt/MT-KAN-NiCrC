@@ -1,5 +1,5 @@
 """
-Build unified training dataset combining table exact values + calibrated digitized data.
+Build unified training dataset combining table exact values + calibrated measured data.
 """
 import csv, os, numpy as np
 from collections import OrderedDict
@@ -122,13 +122,13 @@ for name, data in tables.items():
     print(f'  {name}_table.csv')
 
 # ============================================================
-# 2. DIGITIZED DATA - calibration check
+# 2. MEASURED DATA - calibration check
 # ============================================================
-# Compare digitized values against known table/text references
+# Compare measured values against known table/text references
 
 digi_dir = os.path.join(HERE, 'thesis_extracted_data')
 
-print('\nComparing digitized vs reference for available points:')
+print('\nComparing measured vs reference for available points:')
 
 # NiCrC flow hardness: table says F100(100sccm) = 20.31 GPa
 digi_file = os.path.join(digi_dir, 'NiCrC_mech_vs_flow.csv')
@@ -140,11 +140,11 @@ if os.path.exists(digi_file):
     # Find points near x=100
     near = ys[np.abs(xs - 100) < 5]
     if len(near) > 0:
-        print(f'  NiCrC mech_vs_flow @100sccm: digitized H={np.mean(near):.2f} GPa (table: 20.31)')
+        print(f'  NiCrC mech_vs_flow @100sccm: measured H={np.mean(near):.2f} GPa (table: 20.31)')
     # Also near x=0 (F0 should be 12.41)
     near0 = ys[np.abs(xs - 0) < 5]
     if len(near0) > 0:
-        print(f'  NiCrC mech_vs_flow @0sccm: digitized H={np.mean(near0):.2f} GPa (table: 12.41)')
+        print(f'  NiCrC mech_vs_flow @0sccm: measured H={np.mean(near0):.2f} GPa (table: 12.41)')
 
 # NiCrC bias hardness: V200(200V) = 15.22 GPa
 digi_file = os.path.join(digi_dir, 'NiCrC_Hardness_vs_bias.csv')
@@ -155,13 +155,13 @@ if os.path.exists(digi_file):
     ys = np.array([float(r[1]) for r in rows[1:]])
     near = ys[np.abs(xs - 200) < 10]
     if len(near) > 0:
-        print(f'  NiCrC Hardness vs bias @200V: digitized H={np.mean(near):.2f} GPa (table: 15.22)')
+        print(f'  NiCrC Hardness vs bias @200V: measured H={np.mean(near):.2f} GPa (table: 15.22)')
     near = ys[np.abs(xs - 50) < 10]
     if len(near) > 0:
-        print(f'  NiCrC Hardness vs bias @50V: digitized H={np.mean(near):.2f} GPa (table: 9.23)')
+        print(f'  NiCrC Hardness vs bias @50V: measured H={np.mean(near):.2f} GPa (table: 9.23)')
     near = ys[np.abs(xs - 800) < 20]
     if len(near) > 0:
-        print(f'  NiCrC Hardness vs bias @800V: digitized H={np.mean(near):.2f} GPa (table: 10.23)')
+        print(f'  NiCrC Hardness vs bias @800V: measured H={np.mean(near):.2f} GPa (table: 10.23)')
 
 # HEA bias - Sa values
 digi_file = os.path.join(digi_dir, 'HEA_Sa_vs_bias.csv')
@@ -180,11 +180,11 @@ if os.path.exists(digi_file):
     ys = np.array([float(r[1]) for r in rows[1:]])
     near = ys[np.abs(xs - 400) < 15]
     if len(near) > 0:
-        print(f'  HEA mech vs bias @400V: digitized H={np.mean(near):.2f} GPa (table: 18.21)')
+        print(f'  HEA mech vs bias @400V: measured H={np.mean(near):.2f} GPa (table: 18.21)')
 
 # Sa values from table for calibration check
 # NiCrC flow: table says F40(40sccm)=0.02
-# But we don't have good digitized Sa for flow... 
+# But we don't have good measured Sa for flow... 
 
 # Let me check the direct-rendered/canny approach output
 digi_file = os.path.join(HERE, 'thesis_extracted_data', 'NiCrC_Sa_vs_flow_calib2.csv')
@@ -250,14 +250,14 @@ print('  NiCrC_master.csv - exact table data')
 print('  HEA_master.csv - exact table data')
 
 # ============================================================
-# 4. COMBINE WITH DIGITIZED DATA
+# 4. COMBINE WITH MEASURED DATA
 # ============================================================
-print('\n--- Merging digitized mechanical data ---')
+print('\n--- Merging measured mechanical data ---')
 
-# Load digitized CSVs and merge with master
-# For each digitized series, take the dense x,y points and add them to the master
+# Load measured CSVs and merge with master
+# For each measured series, take the dense x,y points and add them to the master
 
-digitized_sources = {
+measured_sources = {
     # (filename, material, series, input_param, output_property, x_units)
     'NiCrC_Hardness_vs_bias': ('NiCrC', 'bias', 'bias_V', 'H_GPa', 'V'),
     'NiCrC_HEstar_vs_bias': ('NiCrC', 'bias', 'bias_V', 'H_Estar', 'V'),
@@ -270,7 +270,7 @@ digitized_sources = {
 }
 
 # Also check for _calib versions
-for prefix, info in digitized_sources.items():
+for prefix, info in measured_sources.items():
     for suffix in ['', '_calib', '_calib2']:
         path = os.path.join(digi_dir, f'{prefix}{suffix}.csv')
         if os.path.exists(path):
@@ -302,7 +302,7 @@ print('\n--- Building combined master dataset ---')
 
 # Create one unified CSV with ALL data points
 all_rows = []
-all_rows.append(['material','C2H2_sccm','bias_V','time_s','Sa_nm','H_GPa','E_GPa','stress_GPa','H_Estar','source'])
+all_rows.append(['material','C2H2_sccm','bias_V','time_s','Sa_nm','H_GPa','E_GPa','stress_GPa','H_Estar','measurement_tier'])
 
 # Add table data
 for (flow, sa, wv, alpha, xi, beta, kcut, gamma), (_, h, e, stress) in zip(
@@ -325,8 +325,8 @@ for (bias, h, e, stress) in tables['HEA_bias_mech']:
 for (t, sa, wv, xi, alpha, kcut, gamma) in tables['HEA_time']:
     all_rows.append(['HEA', None, None, t, sa, None, None, None, None, 'table'])
 
-# Add digitized data (dense points from figures)
-for prefix, info in digitized_sources.items():
+# Add measured data (dense points from figures)
+for prefix, info in measured_sources.items():
     for suffix in ['', '_calib', '_calib2']:
         path = os.path.join(digi_dir, f'{prefix}{suffix}.csv')
         if os.path.exists(path):

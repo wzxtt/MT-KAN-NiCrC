@@ -127,35 +127,19 @@ def fig_mtkan_architecture():
     save_figure(fig, 'fig0_architecture')
 
 
-# ─────────────────────── Fig 1: Parity Plots (per task, by source) ───────────────────────
-def fig_parity_plots(preds, targets, mask_test, source_labels, task_names):
+# ─────────────────────── Fig 1: Parity Plots (per task) ───────────────────────
+def fig_parity_plots(preds, targets, mask_test, task_names):
     task_short = ['$S_a$', '$H$', '$E$', r'$\sigma$', '$H/E^*$']
     unit = ['nm', 'GPa', 'GPa', 'GPa', '']
-    src_colors = {'exact': C7[0], 'synthetic': C7[1], 'digitized': C7[3]}
     fig, axes = plt.subplots(1, len(task_names),
                              figsize=(NATURE_DOUBLE[0], NATURE_DOUBLE[0] * 0.34))
-    metrics_json = None
-    res_path = os.path.join(_FINAL_DIR, '..', 'results', 'results_summary.json')
-    try:
-        import json
-        with open(res_path) as f:
-            metrics_json = json.load(f)['MT-KAN']
-    except Exception:
-        pass
     for t, ax in enumerate(axes):
         valid = mask_test[:, t].astype(bool)
         yt, yp = targets[valid, t], preds[valid, t]
         lims = [min(yt.min(), yp.min()), max(yt.max(), yp.max())]
         pad = 0.06 * (lims[1] - lims[0]); lims = [lims[0] - pad, lims[1] + pad]
         ax.plot(lims, lims, ls='--', c='grey', lw=0.6, zorder=1)
-        for src in ['exact', 'synthetic', 'digitized']:
-            m = source_labels.get(src)
-            if m is None:
-                continue
-            sel = valid & m
-            if sel.sum() > 0:
-                ax.scatter(targets[sel, t], preds[sel, t], s=4, alpha=0.55,
-                           c=src_colors[src], edgecolors='none', label=src, zorder=2)
+        ax.scatter(yt, yp, s=4, alpha=0.55, c=C7[0], edgecolors='none', zorder=2)
         ss_res = np.sum((yt - yp) ** 2)
         ss_tot = np.sum((yt - yt.mean()) ** 2)
         r2 = 1 - ss_res / max(ss_tot, 1e-10)
@@ -166,8 +150,7 @@ def fig_parity_plots(preds, targets, mask_test, source_labels, task_names):
         ax.set_xlim(lims); ax.set_ylim(lims)
         ax.set_title(task_short[t] + (f' ({unit[t]})' if unit[t] else ''), fontsize=9.8)
         if t == 0:
-            ax.set_ylabel('Predicted'); ax.legend(frameon=False, fontsize=6.9,
-                                                  loc='lower right', handletextpad=0.1)
+            ax.set_ylabel('Predicted')
         else:
             ax.set_yticklabels([])
         ax.set_xlabel('Measured')
@@ -412,40 +395,35 @@ def fig_correlation_matrix(all_preds_dict, all_targets, task_names, model_names)
 
 # ─────────────────────── Fig 13: t-SNE of Feature Space ───────────────────────
 def fig_tsne_visualization(ds, task_names):
-    """t-SNE projection of feature space, colored by source and key targets."""
+    """t-SNE projection of feature space, colored by material type and key targets."""
     from sklearn.manifold import TSNE
     X = ds.features
-    # t-SNE
     tsne = TSNE(n_components=2, random_state=42, perplexity=30, max_iter=1000, init='pca')
     Z = tsne.fit_transform(X)
     df = ds.df
-    sources = df['source'].values
-    src_colors = {'exact': C7[0], 'synthetic': C7[1], 'digitized': C7[3]}
+    mat = df['material'].values.astype(int)
     fig, axes = plt.subplots(1, 3, figsize=(NATURE_DOUBLE[0], NATURE_DOUBLE[0] * 0.4))
-    # Panel 1: by source
     ax = axes[0]
-    for src in ['exact', 'synthetic', 'digitized']:
-        mask = sources == src
+    for val, lab, col in [(0, 'NiCrC', C7[0]), (1, 'HEA', C7[1])]:
+        mask = mat == val
         if mask.sum() > 5:
             ax.scatter(Z[mask, 0], Z[mask, 1], s=3, alpha=0.4,
-                      color=src_colors[src], label=src, edgecolors='none')
-    ax.legend(frameon=False, fontsize=7.5); ax.set_title('By data source', fontsize=9.0)
+                       color=col, label=lab, edgecolors='none')
+    ax.legend(frameon=False, fontsize=7.5); ax.set_title('By material type', fontsize=9.0)
     ax.set_xlabel('t-SNE 1'); ax.set_ylabel('t-SNE 2')
     ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
-    # Panel 2: by Sa (roughness)
     ax = axes[1]
     valid_sa = ~np.isnan(df['Sa_nm'].values)
     sc = ax.scatter(Z[valid_sa, 0], Z[valid_sa, 1], s=3, alpha=0.5,
-                   c=df['Sa_nm'].values[valid_sa], cmap='viridis', edgecolors='none')
+                    c=df['Sa_nm'].values[valid_sa], cmap='viridis', edgecolors='none')
     plt.colorbar(sc, ax=ax, shrink=0.8).set_label('$S_a$ (nm)', fontsize=7.5)
     ax.set_title('By $S_a$ roughness', fontsize=9.0)
     ax.set_xlabel('t-SNE 1'); ax.set_ylabel('')
     ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
-    # Panel 3: by H (hardness)
     ax = axes[2]
     valid_h = ~np.isnan(df['H_GPa'].values)
     sc = ax.scatter(Z[valid_h, 0], Z[valid_h, 1], s=3, alpha=0.5,
-                   c=df['H_GPa'].values[valid_h], cmap='viridis', edgecolors='none')
+                    c=df['H_GPa'].values[valid_h], cmap='viridis', edgecolors='none')
     plt.colorbar(sc, ax=ax, shrink=0.8).set_label('$H$ (GPa)', fontsize=7.5)
     ax.set_title('By $H$ hardness', fontsize=9.0)
     ax.set_xlabel('t-SNE 1'); ax.set_ylabel('')
@@ -454,40 +432,29 @@ def fig_tsne_visualization(ds, task_names):
     save_figure(fig, 'fig13_tsne')
 
 
-# ─────────────────────── Fig 15: Violin Plot of Targets by Source ───────────────────────
-def fig_violin_by_source(ds, task_names):
-    """Violin plots showing distribution of each target, split by data source."""
+# ─────────────────────── Fig 15: Violin Plot of Measured Targets ───────────────────────
+def fig_violin_distributions(ds, task_names):
+    """Violin plots showing the distribution of each measured target."""
     df = ds.df
     task_short = ['$S_a$ (nm)', '$H$ (GPa)', '$E$ (GPa)', r'$\sigma$ (GPa)', '$H/E^*$']
-    src_palette = ['#0072B2', '#009E73', '#CC79A7']  # blue, green, pink for exact/synthetic/digitized
     fig, axes = plt.subplots(1, len(task_names), figsize=(NATURE_DOUBLE[0], NATURE_DOUBLE[0] * 0.45))
     for t, (task, short) in enumerate(zip(task_names, task_short)):
         ax = axes[t]
-        src_data = []
-        src_labels_local = []
-        for src in ['exact', 'synthetic', 'digitized']:
-            vals = df.loc[df['source'] == src, task].dropna().values
-            if len(vals) > 3:
-                src_data.append(vals)
-                src_labels_local.append(f'{src}\n(n={len(vals)})')
-        if src_data:
-            parts = ax.violinplot(src_data, positions=range(len(src_data)),
-                                  showmeans=True, showmedians=True)
-            for i, pc in enumerate(parts['bodies']):
-                pc.set_facecolor(src_palette[i]); pc.set_alpha(0.5)
-            parts['cmeans'].set_color('k'); parts['cmedians'].set_color('grey')
-            ax.set_xticks(range(len(src_data)))
-            ax.set_xticklabels(src_labels_local, fontsize=7.5)
+        vals = df[task].dropna().values
+        parts = ax.violinplot([vals], positions=[0], showmeans=True, showmedians=True)
+        parts['bodies'][0].set_facecolor(C7[0]); parts['bodies'][0].set_alpha(0.5)
+        parts['cmeans'].set_color('k'); parts['cmedians'].set_color('grey')
+        ax.set_xticks([0]); ax.set_xticklabels([f'n={len(vals)}'], fontsize=7.5)
         ax.set_title(short, fontsize=9.0); ax.set_ylabel('')
         ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
     plt.tight_layout()
-    save_figure(fig, 'fig15_violin_source')
+    save_figure(fig, 'fig15_violin')
 
 
 # ─────────────────────── Main ───────────────────────
 def generate_all_figures(all_metrics, all_preds_dict, all_targets, history_dict,
                          model_names, task_names, feature_names, model=None, ds=None,
-                         source_labels=None, ablation_metrics=None, save_dir=None,
+                         ablation_metrics=None, save_dir=None,
                          mask_test=None, X_test=None):
     if save_dir is not None: set_save_dir(save_dir)
     print('Generating figures...')
@@ -499,10 +466,9 @@ def generate_all_figures(all_metrics, all_preds_dict, all_targets, history_dict,
     fig_rmse_mae_heatmap(all_metrics, model_names, task_names)
     if ds is not None:
         fig_tsne_visualization(ds, task_names)
-        fig_violin_by_source(ds, task_names)
+        fig_violin_distributions(ds, task_names)
     if mask_test is not None:
-        fig_parity_plots(all_preds_dict['MT-KAN'], all_targets, mask_test,
-                         source_labels or {}, task_names)
+        fig_parity_plots(all_preds_dict['MT-KAN'], all_targets, mask_test, task_names)
         if model is not None and X_test is not None:
             fig_feature_importance(model, X_test, mask_test, task_names, feature_names)
     if history_dict:

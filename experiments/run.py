@@ -184,14 +184,6 @@ all_preds_dict = {
 history_dict = {'MT-KAN': kan_history, 'MLP': mlp_history,
                 'KAN (no physics)': kan_nophys_history}
 
-# Source labels for figures (from test set)
-src_test = ds.df['source'].values[test_idx]
-source_labels = {}
-for src in ['exact', 'synthetic', 'digitized']:
-    mask = np.array([s == src for s in src_test])
-    if mask.sum() > 0:
-        source_labels[src] = mask
-
 ablation_metrics = {
     'MT-KAN (full)': kan_metrics_full,
     'w/o physics': kan_nophys_metrics,
@@ -237,7 +229,6 @@ generate_all_figures(
     feature_names=FEAT_NAMES,
     model=kan_model,
     ds=ds,
-    source_labels=source_labels,
     ablation_metrics=ablation_metrics,
     save_dir=FIG_DIR,
     mask_test=mask_test,

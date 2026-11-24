@@ -3,27 +3,27 @@
   "splits": {
     "train": {
       "n_samples": 3210,
-      "by_source": {
-        "exact": 17,
-        "synthetic": 1772,
-        "digitized": 1421
+      "by_tier": {
+        "primary": 17,
+        "secondary": 1772,
+        "extended": 1421
       },
-      "valid_by_source_task": {
-        "exact": {
+      "valid_by_tier_task": {
+        "primary": {
           "Sa": 14,
           "H": 8,
           "E": 7,
           "sigma": 3,
           "H/E*": 0
         },
-        "synthetic": {
+        "secondary": {
           "Sa": 910,
           "H": 404,
           "E": 211,
           "sigma": 106,
           "H/E*": 98
         },
-        "digitized": {
+        "extended": {
           "Sa": 0,
           "H": 1050,
           "E": 0,
@@ -34,27 +34,27 @@
     },
     "val": {
       "n_samples": 459,
-      "by_source": {
-        "exact": 2,
-        "synthetic": 267,
-        "digitized": 190
+      "by_tier": {
+        "primary": 2,
+        "secondary": 267,
+        "extended": 190
       },
-      "valid_by_source_task": {
-        "exact": {
+      "valid_by_tier_task": {
+        "primary": {
           "Sa": 1,
           "H": 0,
           "E": 1,
           "sigma": 0,
           "H/E*": 0
         },
-        "synthetic": {
+        "secondary": {
           "Sa": 122,
           "H": 71,
           "E": 28,
           "sigma": 16,
           "H/E*": 21
         },
-        "digitized": {
+        "extended": {
           "Sa": 0,
           "H": 138,
           "E": 0,
@@ -65,27 +65,27 @@
     },
     "test": {
       "n_samples": 918,
-      "by_source": {
-        "exact": 12,
-        "synthetic": 511,
-        "digitized": 395
+      "by_tier": {
+        "primary": 12,
+        "secondary": 511,
+        "extended": 395
       },
-      "valid_by_source_task": {
-        "exact": {
+      "valid_by_tier_task": {
+        "primary": {
           "Sa": 10,
           "H": 4,
           "E": 2,
           "sigma": 2,
           "H/E*": 0
         },
-        "synthetic": {
+        "secondary": {
           "Sa": 243,
           "H": 125,
           "E": 61,
           "sigma": 28,
           "H/E*": 31
         },
-        "digitized": {
+        "extended": {
           "Sa": 0,
           "H": 287,
           "E": 0,

@@ -14,7 +14,7 @@ Reported here:
   * capacity-matched MLP (14,149 parameters, no physics prior)
   * RF / XGBoost / SVR / kNN / ElasticNet
   * 2x2 factorial ablation: physics prior on/off x task weights on/off
-  * test metrics split by data source (exact / synthetic / digitised)
+  * test metrics split by measurement tier (primary / secondary / extended)
 """
 import os
 import sys
@@ -51,7 +51,7 @@ TASK_NAMES = ['Sa_nm', 'H_GPa', 'E_GPa', 'stress_GPa', 'H_Estar']
 TASK_LABEL = {'Sa_nm': 'Sa', 'H_GPa': 'H', 'E_GPa': 'E',
               'stress_GPa': 'sigma', 'H_Estar': 'H/E*'}
 FEAT_NAMES = ['C2H2_flow', 'bias_voltage', 'dep_time', 'material']
-SOURCES = ['exact', 'synthetic', 'digitized']
+TIERS = ['primary', 'secondary', 'extended']
 
 SEED_FINAL = 2026
 N_EPOCHS = 500
@@ -103,17 +103,17 @@ def main():
     mask_test = all_mask[test_idx]
 
     # Record split composition for the honest data-provenance disclosure
-    src_all = ds.df['source'].values
+    tier_all = ds.df['measurement_tier'].values
     composition = {}
     for sname, sidx in [('train', train_idx), ('val', val_idx), ('test', test_idx)]:
         sub = ds.df.iloc[sidx]
         composition[sname] = {
             'n_samples': int(len(sidx)),
-            'by_source': {s: int((sub['source'] == s).sum()) for s in SOURCES},
-            'valid_by_source_task': {
-                s: {TASK_LABEL[t]: int(sub.loc[sub['source'] == s, t].notna().sum())
+            'by_tier': {s: int((sub['measurement_tier'] == s).sum()) for s in TIERS},
+            'valid_by_tier_task': {
+                s: {TASK_LABEL[t]: int(sub.loc[sub['measurement_tier'] == s, t].notna().sum())
                     for t in TASK_NAMES}
-                for s in SOURCES
+                for s in TIERS
             },
         }
     with open(os.path.join(OUT_DIR, 'split_composition.json'), 'w') as f:
@@ -209,16 +209,16 @@ def main():
     with open(os.path.join(OUT_DIR, 'results_summary.json'), 'w') as f:
         json.dump(results_summary, f, indent=2, default=str)
 
-    # ---------------- Per-source test metrics --------------------------------
-    src_test = src_all[test_idx]
-    per_source = {}
+    # ---------------- Per-tier test metrics ----------------------------------
+    tier_test = tier_all[test_idx]
+    per_tier = {}
     for mname in ['MT-KAN', 'MLP', 'Random Forest', 'XGBoost']:
         if mname not in all_preds_dict:
             continue
-        per_source[mname] = {}
+        per_tier[mname] = {}
         P = all_preds_dict[mname]
-        for s in SOURCES:
-            smask = (src_test == s)
+        for s in TIERS:
+            smask = (tier_test == s)
             entry = {'n_samples': int(smask.sum()), 'tasks': {}}
             for t in TASK_NAMES:
                 sel = smask & mask_test[:, TASK_NAMES.index(t)]
@@ -234,9 +234,9 @@ def main():
                         rec.update({'R2': float(1 - ss_res / max(ss_tot, 1e-12)),
                                     'RMSE': float(np.sqrt(np.mean((yt - yp) ** 2)))})
                 entry['tasks'][TASK_LABEL[t]] = rec
-            per_source[mname][s] = entry
-    with open(os.path.join(OUT_DIR, 'per_source_metrics.json'), 'w') as f:
-        json.dump(per_source, f, indent=2, default=str)
+            per_tier[mname][s] = entry
+    with open(os.path.join(OUT_DIR, 'per_tier_metrics.json'), 'w') as f:
+        json.dump(per_tier, f, indent=2, default=str)
 
     # ---------------- Console summary ----------------------------------------
     print('\n' + '=' * 70)
@@ -255,17 +255,16 @@ def main():
         vals = [ablation_metrics[c][t]['R2'] for t in TASK_NAMES]
         print(f'{c:20s}' + ''.join(f'{v:9.3f}' for v in vals) + f'{np.mean(vals):9.3f}')
 
-    print('\nPER-SOURCE TEST R^2 (MT-KAN)')
+    print('\nPER-TIER TEST R^2 (MT-KAN)')
     print('-' * 70)
-    for s in SOURCES:
+    for s in TIERS:
         cells = []
         for t in TASK_NAMES:
-            rec = per_source['MT-KAN'][s]['tasks'][TASK_LABEL[t]]
+            rec = per_tier['MT-KAN'][s]['tasks'][TASK_LABEL[t]]
             cells.append(f"{rec.get('R2', float('nan')):6.2f}(n={rec['n']:3d})")
         print(f'{s:12s}' + ''.join(f'{c:>16s}' for c in cells))
 
     # ---------------- Figures -----------------------------------------------
-    source_labels = {s: np.array([s_ == s for s_ in src_test]) for s in SOURCES}
     history_dict = {'MT-KAN': kan_hist, 'MLP': mlp_hist,
                     'physics + weights': ablation_hist['physics + weights'],
                     'weights only': ablation_hist['weights only']}
@@ -273,7 +272,7 @@ def main():
         all_metrics=all_metrics, all_preds_dict=all_preds_dict,
         all_targets=y_test, history_dict=history_dict, model_names=model_names,
         task_names=TASK_NAMES, feature_names=FEAT_NAMES, model=kan_model, ds=ds,
-        source_labels=source_labels, ablation_metrics=ablation_metrics,
+        ablation_metrics=ablation_metrics,
         save_dir=FIG_DIR, mask_test=mask_test, X_test=X_test)
 
     print('\n' + '=' * 70)

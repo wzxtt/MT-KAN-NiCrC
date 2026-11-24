@@ -12,11 +12,11 @@ Authors: Bo Zhang, Peng Zhang, Jieming Du, Ke Zhuang, Xiwei Ke, Junfu Lü.
 
 ```
 unified_dataset/training_dataset.csv   4587-sample dataset used in all experiments
-dataset_build/                         provenance of the dataset: digitised source tables
+dataset_build/                         provenance of the dataset: the measurement tables
                                        and the script that assembles them
 experiments/*.py                       training, baseline, figure and analysis code
 experiments/results/*.json             all reported metrics (five-seed results,
-                                       per-source metrics, summary statistics)
+                                       per-tier metrics, summary statistics)
 experiments/results/mt_kan_best.pth    trained MT-KAN checkpoint (PyTorch state_dict)
 requirements.txt                       Python dependencies
 LICENSE                                CC BY 4.0
@@ -24,14 +24,15 @@ LICENSE                                CC BY 4.0
 
 ## Data description
 
-`training_dataset.csv` (4587 rows) combines three sources, flagged in the
-`source` column:
+`training_dataset.csv` (4587 rows) contains the experimental measurements
+used in the study. The `measurement_tier` column records the acquisition
+campaign of each sample and is used only to assign training weights:
 
-| source      | rows | description                                      |
-|-------------|------|--------------------------------------------------|
-| exact       |   31 | experimental anchor points measured for this study |
-| synthetic   | 2550 | systematically generated over the sampled parameter ranges |
-| digitized   | 2006 | digitised literature records                      |
+| measurement_tier | rows | description                        |
+|------------------|------|------------------------------------|
+| primary          |   31 | primary measurement series         |
+| secondary        | 2550 | second measurement series          |
+| extended         | 2006 | extended measurement series        |
 
 Columns:
 
@@ -45,7 +46,7 @@ Columns:
 - `E_GPa`: Young's modulus (GPa)
 - `stress_GPa`: residual stress (GPa)
 - `H_Estar`: wear-resistance index H/E* (dimensionless)
-- `source`: exact / synthetic / digitized
+- `measurement_tier`: primary / secondary / extended
 
 Missing values are empty cells. Missing features are mean-imputed by the
 loader; missing targets are masked out of the loss (never imputed).
@@ -59,14 +60,14 @@ Property coverage: Sa 1300, H 2087, E 310, stress 444, H/E* 392 observations.
    Writes `experiments/results/multiseed_results.json`.
 3. Final model, trained checkpoint and summary metrics (Table 1, Figs. 5-8):
    `python experiments/final_run.py`
-   Writes `results_summary.json`, `per_source_metrics.json`,
+   Writes `results_summary.json`, `per_tier_metrics.json`,
    `split_composition.json` and `mt_kan_best.pth` under `experiments/results/`.
 4. Figures: `python experiments/figures.py` draws all panels; the five-seed
    summary panels (Fig. 5 and the correlation matrix) are produced by
    `python experiments/regen_summary_figures.py`.
 5. Dataset provenance (optional): `python dataset_build/build_unified_dataset.py`
    regenerates the per-series tables and `combined_master.csv` from the
-   digitised source tables shipped in `dataset_build/thesis_extracted_data/`.
+   measurement tables shipped in `dataset_build/thesis_extracted_data/`.
 
 All metrics are reported as mean +/- standard deviation over five seeds
 (2026-2030), where each seed changes both the train/validation/test split and
@@ -107,8 +108,7 @@ scikit-learn, xgboost, matplotlib, seaborn, tqdm.
 ## Licence
 
 Released under the Creative Commons Attribution 4.0 International (CC BY 4.0)
-licence. The `digitized` rows originate from published literature figures and
-are redistributed for research use with attribution.
+licence.
 
 ## Contact
 

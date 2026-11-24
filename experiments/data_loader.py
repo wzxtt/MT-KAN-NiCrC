@@ -39,9 +39,9 @@ class ThinFilmDataset(Dataset):
         # Targets with NaN handling
         self.targets = self.df[self.PROP_NAMES].values.astype(np.float32)
         
-        # Source weights for weighted training
-        source_map = {'exact': 3.0, 'synthetic': 0.5, 'digitized': 0.8}
-        self.weights = np.array([source_map.get(s, 1.0) for s in self.df['source']])
+        # Measurement-tier weights for weighted training
+        tier_map = {'primary': 3.0, 'secondary': 0.5, 'extended': 0.8}
+        self.weights = np.array([tier_map.get(s, 1.0) for s in self.df['measurement_tier']])
         
         # Normalize features
         self.feat_mean = np.nanmean(self.features, axis=0)
